@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%- include('./head') %>
+    <title>Inscription</title>
+    <meta name="description" content="Formulaire d'inscription au site e-achat">
+    <link rel="stylesheet" href="/css/formulaire.css">
+</head>
+
+<body>
+    <div class="container">
+        <main class="content">
+            <form action="/admin-connexion" method="post">
+                    <h1 class="font-32 text-align-center">Connexion</h1>
+                    <% if(locals.erreurs) {
+                        for(erreur of erreurs) { %>
+                            <p class="text-danger text-align-center font-14"><%= erreur %></p>
+                       <% }
+                    } %>
+                    <p>
+                        <label for="emailInscription" class="font-14">Email</label>
+                        <input type="email" name="email" id="emailInscription" placeholder="Email" class="form-control">
+                    </p>
+                    <p>
+                        <label for="mdpInscription" class="font-14">Mot de passe</label>
+                        <input type="password" name="motDePasse" id="mdpInscription" placeholder="Mot de passe" class="form-control">
+                    </p>
+                    <p class="text-align-center">
+                        <button type="submit" class="btn btn-primary">Connexion</button>
+                    </p>
+                </form>
+            </main>
+    </div>
+</body>
+<script src="https://kit.fontawesome.com/8c916de43d.js" crossorigin="anonymous"></script>
+
+</html>

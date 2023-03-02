@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%- include('./head') %>
+    <title>Inscription</title>
+    <meta name="description" content="Formulaire d'inscription au site e-achat">
+    <link rel="stylesheet" href="/css/formulaire.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <%- include('./header.ejs') %>
+        <main class="content">
+                <h1 class="font-32 text-align-center">Inscription</h1>
+                <form action="/sign-up" method="post" >
+                    <% if(locals.erreurs){ 
+                    for (erreur of erreurs) { %>
+                        <p class="text-align-center text-danger font-14"><%= erreur %></p>
+                    <% }} %> 
+                    <p>
+                        <label for="prenom" class="font-14">Prénom <span class="required">*</span></label>
+                        <input type="text" class="form-control" name="prenom" id="prenom" placeholder="Prénom" required>
+                    </p>
+                    <p>
+                        <label for="nom" class="font-14">Nom de famille</label>
+                        <input type="text" name="nom" id="nom" class="form-control" placeholder="Nom de famille" >
+                    </p>
+                    <p>
+                        <label for="emailInscription" class="font-14">Email <span class="required">*</span></label>
+                        <input type="email" name="email" id="emailInscription" placeholder="Email" class="form-control" required>
+                    </p>
+                    <p>
+                        <label for="mdpInscription" class="font-14">Mot de passe <span class="required">*</span></label>
+                        <input type="password" name="motDePasse" id="password" placeholder="Mot de passe" class="form-control" required>
+                        <i class="fa-solid fa-eye-slash" id="showPassword"></i>
+                    </p>
+                    <p>
+                        <label for="mdpConfirmation" class="font-14">Confirmer le mot de passe <span class="required">*</span></label>
+                        <input type="password" name="motDePasseConfirmation" id="mdpConfirmation" placeholder="Confirmer le mot de passe" class="form-control" required>
+                    </p>
+                    <p>
+                        <label for="telephone" class="font-14">Téléphone <span class="required">*</span></label>
+                        <input type="tel" name="telephone" id="telephone" class="form-control" placeholder="Numéro de téléphone" required>
+                    </p>    
+                    <p>
+                        <label for="adresse" class="font-14">Adresse <span class="required">*</span></label>
+                        <textarea name="adresse" id="adresse" cols="30" rows="5" class="form-control" placeholder="Adresse" required></textarea>
+                    </p>
+                    <p>
+                        <button type="submit" class="btn btn-primary">Inscription</button>
+                    </p>
+                </form>
+            </main>
+            <%- include('./footer.ejs') %>
+    </div>
+</body>
+<script src="https://kit.fontawesome.com/8c916de43d.js" crossorigin="anonymous"></script>
+<script src="/js/main.js"></script>
+</html>

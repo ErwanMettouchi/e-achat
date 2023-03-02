@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <%- include('./head') %>
+  <title>E-Achat - Recherche : <%= search %></title>
+  <meta name="description" content="Recherche de produit : <%= search %>">
+  <link rel="stylesheet" href="/css/produits.css">
+</head>
+
+<body>
+  <div class="container">
+    <%- include('./header') %>
+      <main class="content">
+        <h2 class="text-align-center m-top10 font-24"><%= produits.length > 0 ? produits.length : "Aucun" %> <%= produits.length === 0 ? "produit ne correspond" : produits.length === 1 ? "produit correspond" : "produits correspondent" %>  à votre recherche</h1>
+        <section>
+            <% for(produit of produits) { %>
+                <article class="product-container">
+                    <div class="product-content">
+                        <div class="product-image">
+                            <img src="<%= produit.image %>" alt="<%= produit.nom %>">
+                        </div>
+                        <div class="product-details">
+                            <p class="font-32 m-top10 product-title"><a href="/produit/<%= produit.id %>"><%= produit.nom %></a></p>
+                            <p class="font-14 m-top10 product-description"><%= produit.description %></p>
+                        </div>
+                    </div>
+                    <div class="product-price-stock">
+                        <p class="font-32 text-danger text-align-center"><%= produit.prix %>€</p>
+                        <p class="font-32 text-success text-align-center"><%= (produit.stock >= 10) ? "EN STOCK" : (produit.stock < 10 && produit.stock > 0) ? "STOCK LIMITÉ" : "RUPTURE DE STOCK"  %></p>
+                    </div>
+                </article>
+                <% } %>
+      </section>
+      </main>
+      <%- include('./footer') %>
+  </div>
+</body>
+<script src="https://kit.fontawesome.com/8c916de43d.js" crossorigin="anonymous"></script>
+<script src="/js/main.js"></script>
+
+</html>

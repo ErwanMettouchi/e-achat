@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%- include('./head') %>
+    <title>Inscription</title>
+    <meta name="description" content="Formulaire d'inscription au site e-achat">
+    <link rel="stylesheet" href="/css/formulaire.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <%- include('./header.ejs') %>
+        <main class="content">
+            <form action="/sign-in" method="post">
+                
+                <h1 class="font-32 text-align-center">Connexion</h1>
+                <% if(locals.erreurs) {
+                    for(erreur of erreurs) { %>
+                    <p class="text-danger font-14 text-align-center"><%= erreur %></p>
+                <%    }} %>
+                    <p>
+                        <label for="emailInscription" class="font-14">Email</label>
+                        <input type="email" name="email" id="emailInscription" placeholder="Email" class="form-control">
+                    </p>
+                    <p>
+                        <label for="mdpInscription" class="font-14">Mot de passe</label>
+                        <input type="password" name="motDePasse" id="password" placeholder="Mot de passe" class="form-control">
+                        <i class="fa-solid fa-eye-slash" id="showPassword"></i>
+                    </p>
+                    <p class="text-align-center font-14">
+                        Je n'ai pas de compte, je veux <a href="/inscription" ><span class="text-primary">en créer un</span></a>
+                    </p>
+                    <p class="text-align-center">
+                        <button type="submit" class="btn btn-primary">Connexion</button>
+                    </p>
+                </form>
+            </main>
+            <%- include('./footer.ejs') %>
+    </div>
+</body>
+<script src="https://kit.fontawesome.com/8c916de43d.js" crossorigin="anonymous"></script>
+<script src="/js/main.js"></script>
+</html>

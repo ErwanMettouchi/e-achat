@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./head') %>
+    <title>Formulaire d'ajout d'un produit</title>
+    <link rel="stylesheet" href="/css/formulaire.css">
+</head>
+<body>
+    <div class="container">
+        <main class="content">
+            <h1 class="text-align-center">Ajouter un produit dans la base de données</h1>
+            <form action="/insert-product" method="post">
+                <p>
+                    <input type="text" class="form-control" name="nomProduit" placeholder="Nom du produit">
+                </p>
+                <p>
+                    <input type="number" name="prix" class="form-control" min="0" placeholder="Prix du produit" step="0.01">
+                </p>
+                <p>
+                    <textarea name="description" cols="30" rows="10" class="form-control" placeholder="Description du produit"></textarea>
+                </p>
+                <p>
+                    <input type="number" name="stock" min="0" class="form-control" placeholder="Stock du produit">
+                </p>
+                <p>
+                    <input type="url" name="image" placeholder="Url de l'image" class="form-control">
+                </p>
+                <p>
+                    <select name="marque" class="form-control">
+                        <% 
+                        if(locals.marque){
+                        for(i = 0; i < marque.length; i++) { %>
+                            <option value="<%= marque[i].id %>"><%= marque[i].nom %></option>
+                        <% }} %>
+                    </select>
+                </p>
+                <p>
+                    <select name="souscategorie" class="form-control">
+                        <% 
+                        if(locals.sousCategorie){
+                        for(i = 0; i < sousCategorie.length; i++) { %>
+                            <option value="<%= sousCategorie[i].id %>"><%= sousCategorie[i].nom %></option>
+                        <% }} %>
+                    </select>
+                </p>
+                <p>
+                    <button class="btn btn-primary">Ajouter</button>
+                </p>
+            </form>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <%- include('./head') %>
+  <title>E-Achat - Sous-Catégorie : <%= name %></title>
+  <meta name="description" content="Le site E-achat vous propose une large gamme de produits informatiques. Cette page est consacrée aux produits de la sous-catégorie <%= name %>">
+  <link rel="stylesheet" href="/css/produits.css">
+</head>
+
+<body>
+  <div class="container">
+    <%- include('./header') %>
+      <main class="content">
+        <section>
+            <% for(produit of produits) { %>
+                <article class="product-container">
+                    <div class="product-content">
+                        <div class="product-image">
+                            <img src="<%= produit.image %>" alt="<%= produit.nom %>">
+                        </div>
+                        <div class="product-details">
+                            <p class="font-32 m-top10 product-title"><a href="/produit?id=<%= produit.id %>"><%= produit.nom %></a></p>
+                            <p class="font-14 m-top10 product-description"><%= produit.description %></p>
+                        </div>
+                    </div>
+                    <div class="product-price-stock">
+                        <p class="font-32 text-danger text-align-center"><%= produit.prix %>€</p>
+                        <p class="font-32 text-success text-align-center"><%= (produit.stock >= 10) ? "EN STOCK" : (produit.stock < 10 && produit.stock > 0) ? "STOCK LIMITÉ" : "RUPTURE DE STOCK"  %></p>
+                    </div>
+                </article>
+                <% } %>
+      </section>
+      </main>
+      <%- include('./footer') %>
+  </div>
+</body>
+<script src="https://kit.fontawesome.com/8c916de43d.js" crossorigin="anonymous"></script>
+<script src="/js/main.js"></script>
+
+</html>
