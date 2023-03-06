@@ -18,7 +18,7 @@
     width: 80%;
     display: flex;
     justify-content: space-between;
-    align-items: start;
+    align-items: center;
     flex-direction: column;
     margin-bottom: 30px;
 }
@@ -59,7 +59,6 @@
         position: relative;
     }
     .product-image img {
-        width: 70%;
         height: 100px;
     }
 
@@ -76,15 +75,7 @@
     .product-description {
         font-size: 1rem;
     }
-
-    .product-details {
-        align-items: center;
-        justify-content: center;
-        width: 80%;
-        height: 70px;
-        margin-left: 40px;
-    }
-
+    
     .product-price-stock {
         flex-flow: row nowrap;
         justify-content: space-between;

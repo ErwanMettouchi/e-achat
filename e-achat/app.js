@@ -43,11 +43,11 @@ app.use('/sub-categories', sousCategoriesRouter);
 app.use('/brand', marqueRouter);
 app.use('/admin', adminRouter);
 
-app.locals.dateFormat = function(x){
-  let date = new Date(x)
-  let jourDuMois = date.getDate()
-  let mois = date.getMonth()+1
-  let annee = date.getFullYear()
+app.locals.dateFormat = function(date){
+  let newDate = new Date(date)
+  let jourDuMois = newDate.getDate()
+  let mois = newDate.getMonth()+1
+  let annee = newDate.getFullYear()
   if(jourDuMois < 10) {
     jourDuMois = "0" + jourDuMois
   }

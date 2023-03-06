@@ -33,7 +33,7 @@ router.get('/', async (req, res) => {
   if (req.session.cart === undefined) {
     req.session.cart = [];
   }
-  console.log(req.session.user)
+  console.log('SESSION : ' ,req.session.user)
   res.render('index', { categorie: allCategories, marques: allMarques, user: req.session.user, panier: req.session.cart });
 });
 
@@ -66,8 +66,7 @@ router.post('/signup', async (req, res) => {
     req.session.cart = [];
   }
   let erreurInscription = [];
-  const { nom, prenom, email, motDePasse, motDePasseConfirmation, telephone, adresse } = req.body;
-  let body = req.body;
+  const { nom, prenom, email, motDePasse, motDePasseConfirmation, pseudo, telephone, adresse } = req.body;
   let salt = await bcrypt.genSalt(10);
   let hashedPassword = await bcrypt.hash(motDePasse, salt);
   const regex = /[<\/>]/g;
@@ -75,18 +74,20 @@ router.post('/signup', async (req, res) => {
   const regexPhone = /^0[1-9](\d{2}){4}$/;
   const regexMail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  let mailAlreadyExists = await Utilisateur.findOne({email});
+  const mailAlreadyExists = await Utilisateur.findOne({email});
+  const pseudoAlreadyExists = await Utilisateur.findOne({pseudo})
+  const phoneAlreadyExists = await Utilisateur.findOne({ telephone });
 
-  let phoneAlreadyExists = await Utilisateur.findOne({ telephone });
+
 
   // Tous les if pour gérer les erreurs à l'inscription de l'utilisateur
   if (mailAlreadyExists != null) {
       erreurInscription.push('L\'email utilisé existe déjà, veuillez en entrer un autre');
   } else if (phoneAlreadyExists != null) {
       erreurInscription.push('Le telephone utilisé existe déjà, veuillez en entrer un autre');
-  } else if (prenom.trim() === "" || body.email.trim() === "" || body.motDePasse.trim() === "" || body.telephone.trim() === "" || body.adresse.trim() === "") {
+  } else if (prenom.trim() === "" || email.trim() === "" || body.motDePasse.trim() === "" || pseudo.trimm() === "" || telephone.trim() === "" || adresse.trim() === "") {
       erreurInscription.push('Un ou plusieurs champs sont vide');
-  } else if (prenom.search(regex) !== -1 || body.nom.search(regex) !== -1 || body.email.search(regex) !== -1 || body.telephone.search(regex) !== -1 || body.adresse.search(regex) !== -1) {
+  } else if (prenom.search(regex) !== -1 || nom.search(regex) !== -1 || email.search(regex) !== -1 || pseudo.search(regex) !== -1 || telephone.search(regex) !== -1 || adresse.search(regex) !== -1) {
       erreurInscription.push('Les caractères spéciaux ne sont pas autorisés');
   } else if (regexMdp.test(motDePasse) === false) {
       erreurInscription.push('Le mot de passe doit contenir entre 8 et 20 caractères, dont 1 majuscule, 1 minuscule et 1 chiffre');
@@ -96,6 +97,10 @@ router.post('/signup', async (req, res) => {
       erreurInscription.push('Le mail n\'est pas valide');
   } else if(motDePasse !== motDePasseConfirmation) {
       erreurInscription.push('Les mots de passe ne sont pas identiques');
+  }else if(pseudoAlreadyExists !== null) {
+      erreurInscription.push('Le pseudo est déjà utilisé')
+  }else if(pseudo.trim().length < 6 || pseudo.trim().length > 15) {
+      erreurInscription.push('Le pseudo doit faire entre 6 et 15 caractères')
   }
   // S'il n'y a pas d'erreur, on ajoute le nouveau utilisateur à la base de données
   else {
@@ -103,6 +108,7 @@ router.post('/signup', async (req, res) => {
       prenom : prenom,
       nom : nom,
       email : email,
+      pseudo: pseudo,
       motDePasse: hashedPassword,
       telephone : telephone,
       adresse : adresse,
@@ -412,14 +418,14 @@ router.post('/add-comment', async (req, res) => {
 
 router.get('/account', async (req, res) => {
   if (req.session.user === undefined) {
-    req.session.user = [];
-  }
-  if (req.session.user.length === 0) {
-    res.redirect('/')
+    req.session.user === [];
   } 
-
-  const user = await Utilisateur.findById(req.session.user[0].id);
-  res.render('account', { user: req.session.user, panier: req.session.cart, utilisateur : user });
+  if(req.session.user.length === []) {
+    res.redirect('/')
+  } else {
+    const user = await Utilisateur.findById(req.session.user[0].id);
+    res.render('account', { user: req.session.user, panier: req.session.cart, utilisateur : user });
+  }
 })
 
 /* ----------------------------------------------- MODIFIER LES INFORMATIONS DU COMPTE DE L'UTILISATEUR CONNECTÉ ------------------------------------------*/
@@ -435,7 +441,7 @@ router.post('/update-user', async (req, res) => {
   const user = await Utilisateur.findById(req.session.user[0].id);
 
   // Tous les if pour gérer les erreurs à pour la modification des informations de l'utilisateur
-  if (body.prenom.trim() === "" || body.email.trim() === "" || body.motDePasse.trim() === "" || body.telephone.trim() === "" || body.adresse.trim() === "") {
+  if (body.prenom === "" || body.email === "" || body.motDePasse === "" ||  body.adresse === "") {
     console.log("ERREURS : ", erreurInscription);
   } else if (body.prenom.search(regex) !== -1 || body.nom.search(regex) !== -1 || body.adresse.search(regex) !== -1) {
     erreurModification.push('Les caractères spéciaux ne sont pas autorisés');

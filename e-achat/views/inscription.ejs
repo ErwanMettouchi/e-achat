@@ -32,6 +32,10 @@
                         <input type="email" name="email" id="emailInscription" placeholder="Email" class="form-control" required value="<%= locals.email ? email : "" %>">
                     </p>
                     <p>
+                        <label for="pseudo" class="font-14">Email <span class="required">*</span></label>
+                        <input type="text" name="pseudo" id="pseudo" placeholder="Email" class="form-control" required value="<%= locals.pseudo ? pseudo : "" %>">
+                    </p>
+                    <p>
                         <label for="mdpInscription" class="font-14">Mot de passe <span class="required">*</span></label>
                         <input type="password" name="motDePasse" id="password" placeholder="Mot de passe" class="form-control" required>
                         <i class="fa-solid fa-eye-slash" id="showPassword"></i>
