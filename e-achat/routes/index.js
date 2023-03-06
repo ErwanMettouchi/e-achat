@@ -178,10 +178,6 @@ router.post('/login', async (req, res) => {
   } else {
     validPassword = await bcrypt.compare(mdp, user.motDePasse);
 
-
-    if (mdp === "" || email === "") {
-      erreurAuthentification.push('Un ou plusieurs champs sont vides, veuillez les remplir')
-    }
     if (!validPassword) {
       erreurAuthentification.push('Email et/ou mot de passe invalide(s)');
     }
@@ -420,8 +416,8 @@ router.get('/account', async (req, res) => {
   if (req.session.user === undefined) {
     req.session.user === [];
   } 
-  if(req.session.user.length === []) {
-    res.redirect('/')
+  if(req.session.user.length === 0) {
+    res.redirect('/login')
   } else {
     const user = await Utilisateur.findById(req.session.user[0].id);
     res.render('account', { user: req.session.user, panier: req.session.cart, utilisateur : user });

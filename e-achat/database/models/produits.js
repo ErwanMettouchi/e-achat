@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const produitSchema = mongoose.Schema({
     nom: String,
     prix: Number,
-    description: { type: String, minLength: 30, maxLength: 500 },
+    description: { type: String, minLength: 30 },
     stock: Number,
     sousCategorie: { type: mongoose.Schema.Types.ObjectId, ref: 'sous-categories' },
     paniers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'paniers' }],
@@ -17,6 +17,5 @@ produitSchema.index({
 });
 
 const produitModel = mongoose.model('produits', produitSchema);
-
 
 module.exports = produitModel;

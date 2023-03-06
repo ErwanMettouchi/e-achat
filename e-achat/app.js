@@ -20,10 +20,7 @@ app.use(
   session({  
   secret: 'a4f8071f-c873-4447-8ee2', 
   resave: false, 
-  saveUninitialized: false,
-  cookie : {
-   maxAge : 60000
-  }
+  saveUninitialized: false
    }) ,
 );
 

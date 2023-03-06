@@ -109,7 +109,6 @@ html, body {
 
 /* Header */
 
-
 .navbar {
   padding: 50px 0;
   display: flex;
@@ -158,7 +157,7 @@ html, body {
 }
 
 
-input[type="search"] {
+.navbar input[type="search"] {
   padding: 10px 30px;
   border: none;
   background-color: #E2EBEC;
@@ -263,7 +262,6 @@ section .categories {
 .categories .category-card p.sub-category a:hover {
   color: #2E4465;
 }
-
 
 .brand-links-container {
   width: 100%;

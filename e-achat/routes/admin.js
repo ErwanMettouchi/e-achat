@@ -6,24 +6,15 @@ const Produits = require('../database/models/produits');
 const Marques = require('../database/models/marques');
 const SousCategories = require('../database/models/sousCategories')
 
-router.get('/connexion', (req, res) => {
-    req.session.user = [];
+router.get('/login', (req, res) => {
     if (req.session.admin === undefined) {
         req.session.admin = [];
     }
 
-    if(req.session.admin.length > 0){
-        return res.redirect('/admin/insert-products')
-    }
     res.render("connexion-admin")
 })
 
-
-
-
-router.post('/connexion', async (req, res) => {
-    
-    req.session.user = [];
+router.post('/login', async (req, res) => {
     
     let erreurAuthentificationAdmin = [];
     const admin = await Utilisateur.findOne({
@@ -34,7 +25,7 @@ router.post('/connexion', async (req, res) => {
     
     if (!admin) {
         erreurAuthentificationAdmin.push('Une erreur est survenue, veuillez réessayer');
-        return res.status(401).render('connexion-admin', { erreurs: erreurAuthentificationAdmin, panier: req.session.cart })
+        return res.render('connexion-admin', { erreurs: erreurAuthentificationAdmin, panier: req.session.cart })
     }
     
     let validPassword = await bcrypt.compare(req.body.motDePasse, admin.motDePasse);
@@ -46,13 +37,16 @@ router.post('/connexion', async (req, res) => {
         return res.status(200).redirect('/admin/insert-products');
     } else {
         erreurAuthentificationAdmin.push('Une erreur est survenue, veuillez réessayer');
-        return res.status(401).render('connexion-admin', { erreurs: erreurAuthentificationAdmin, panier: req.session.cart })
+        return res.render('connexion-admin', { erreurs: erreurAuthentificationAdmin, panier: req.session.cart })
     }
 })
 
 router.get('/insert-products', async (req, res) => {
-    if (req.session.admin === []) {
-        return res.status(401).redirect('/connexion')
+    if (req.session.admin === undefined) {
+        req.session.admin = [];
+    }
+    if (req.session.admin.length === 0) {
+        return res.redirect('/admin/login')
     }
     const marque = await Marques.find()
     const sousCategorie = await SousCategories.find()
