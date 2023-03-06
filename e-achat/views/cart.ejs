@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./head') %>
+    <link href="https://fonts.googleapis.com/css?family=Darker+Grotesque&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a41e9403cf.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/css/panier.css">
+    <title>E-Achat - Panier</title>
+</head>
+
+<body>
+    <div class="container">
+        <%-include('./header') %>
+            <main class="content">
+                <% if(panier.length === 0) { %>
+                    <h2 class="text-align-center font-32 text-danger">Aucun article dans le panier :(</h2>
+                <% }else { %>
+                    <table>
+                        <thead>
+                          <tr>
+                            <th class="font-14">Image</th>
+                            <th class="font-14">Produit</th>
+                            <th class="font-14">Prix</th>
+                            <th class="font-14">Quantité</th>
+                            <th class="font-14">Total</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                            <% let totalCmd = 0; %>
+                            <% for(let i=0; i < panier.length; i++) {
+                                totalCmd += panier[i].prix * panier[i].quantite;
+                                let total = panier[i].prix * panier[i].quantite; %>
+                          <tr>
+                            <td><img src="<%= panier[i].image %>" alt="<%= panier[i].nom %>" title="<%= panier[i].nom %>" width="50"></td>
+                            <td class="font-14"><%= panier[i].nom %></td>
+                            <td  class="font-14"><%= panier[i].prix %>€</td>
+                            <td  class="font-14"><%= panier[i].quantite %></td>
+                            <td  class="font-14 text-danger"><%= total %>€</td>
+                            <td><a href="/delete-product?position=<%= i %>"><i class="fa-solid fa-trash font-14"></i></a></td>
+                          </tr>
+                          <% } %>
+                        <tfoot>
+                          <tr>
+                            <td class="font-14">Total panier</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td class="font-14 text-danger"><%= totalCmd %>€</td>
+                            <td><a href="/checkout" class="btn btn-primary">Acheter</a></td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                <% } %>
+            </main>
+    </div>
+    <%- include('./footer') %>
+</body>
+<script src="https://kit.fontawesome.com/8c916de43d.js" crossorigin="anonymous"></script>
+<script src="/js/main.js"></script>
+</html>

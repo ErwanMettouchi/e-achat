@@ -1,0 +1,34 @@
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 20px;
+    margin: 30px auto;
+}
+  
+  th, td {
+    text-align: left;
+    padding: 40px;
+    border-bottom: 1px solid rgba(0,0,0,0.15);
+  }
+  
+  th {
+    background-color: #f2f2f2;
+  }
+  
+  tfoot td {
+    text-align: left;
+  }
+  
+  tfoot td:first-child {
+    text-align: left;
+  }
+  
+  tfoot tr:last-child {
+    background-color: #f2f2f2;
+  }
+
+  @media screen and (max-width: 750px) {
+    th, td {
+        padding: 10px;
+    }
+  }

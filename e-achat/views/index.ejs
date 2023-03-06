@@ -3,7 +3,7 @@
 
 <head>
   <%- include('./head') %>
-  <title>Accueil</title>
+  <title>E-Achat - Page d'accueil</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
@@ -25,14 +25,14 @@
               switch(categorie[i].id) {
                 case "63f612da1431276e1dc24343" :
                   nomSousCategorie1 = "Écrans";
-                  nomSousCategorie2 = "Disques durs externes";
+                  nomSousCategorie2 = "Micros";
                   urlSousCategorie1 = "ecrans";
-                  urlSousCategorie2 = "disques-durs-externes";
+                  urlSousCategorie2 = "micros";
                   break;
                 case "63f613361431276e1dc24344":
-                  nomSousCategorie1 = "Pc gamer";
+                  nomSousCategorie1 = "Pc de bureau";
                   nomSousCategorie2 = "Pc portables";
-                  urlSousCategorie1 = "pc-gamer";
+                  urlSousCategorie1 = "pc-bureau";
                   urlSousCategorie2 = "pc-portables";
                   break;
                 case "63f613441431276e1dc24345":
@@ -59,13 +59,13 @@
             <% } %>
           </div>
         </section>
-        <hr>
+        <hr style="border: 1px solid white; margin-bottom: 50px;">
         <h2 class="text-align-center font-32 marques">Les marques</h2>
         <section>
           <div class="brand-links-container">
             <div class="brand-links">
               <% for (marque of marques) { %>
-              <a href="/brand/<%= marque.nom %>"><img src="/images/accueil/<%= marque.nom %>.png" alt="Logo de la marque <%= marque.nom %>" width="100"></a>
+                <a href="/brand/<%= marque.nom %>"><img src="/images/accueil/<%= marque.nom %>.png" alt="Logo de la marque <%= marque.nom %>" width="100" title="Logo de la marque <%= marque.nom %>"></a>
               <% } %>
             </div>
           </div>

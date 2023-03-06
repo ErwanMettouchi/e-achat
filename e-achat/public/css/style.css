@@ -74,6 +74,15 @@ html, body {
   color: #2b35e884;
 }
 
+.space-between {
+  display: flex;
+  justify-content: space-between;
+}
+
+.align-center {
+  align-items: center;
+}
+
 .btn {
   background-color: white;
   font-weight: 700;
@@ -83,16 +92,19 @@ html, body {
   cursor: pointer;
   border-radius: 5px;
   box-shadow: var(--box-shadow);
+  color: var(--font-color-light) !important; 
 }
 
 .btn-primary {
   background-color: #2b35e884;
-  color: var(--font-color-light);
 }
 
 .btn-danger {
   background-color: #bc4634;
-  color: var(--font-color-light);
+}
+
+.btn-success {
+  background-color: rgb(76, 175, 80);
 }
 
 /* Header */
@@ -252,10 +264,6 @@ section .categories {
   color: #2E4465;
 }
 
-hr {
-  border: 1px solid white;
-  margin-bottom: 50px;
-}
 
 .brand-links-container {
   width: 100%;
@@ -278,6 +286,16 @@ hr {
   display: flex;
   justify-content: space-around;
   align-items: center;
+}
+
+.form-control {
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 5px;
+  outline: none;
+  width: 99%;
+  border: solid 1px #ccc;
+  resize: vertical;
 }
 
 /* Responsive */

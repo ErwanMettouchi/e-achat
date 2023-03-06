@@ -23,15 +23,6 @@ textarea {
     width: 100%;
 }
 
-.form-control {
-    padding: 10px;
-    font-size: 14px;
-    border-radius: 5px;
-    outline: none;
-    width: 99%;
-    border: solid 1px #ccc;
-}
-
 .content p {
     margin-top: 15px;
 }

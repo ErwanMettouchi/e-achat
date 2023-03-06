@@ -6,10 +6,23 @@ const Utilisateur = require('../database/models/utilisateurs');
 const Categorie = require('../database/models/categories');
 const Produits = require('../database/models/produits');
 const Marques = require('../database/models/marques');
-const SousCategorie = require('../database/models/sousCategories');
+const Commentaires = require('../database/models/commentaires');
+const Panier = require('../database/models/paniers')
+const Commande = require('../database/models/commandes')
+const stripe = require('stripe')('sk_test_51Mi7CWB4WDlWyEMwXbFuxxazynUV9JJKREchAEg53DPMjjONrD3Y5O1RK9OF8BgwTLLtX823Gu4jvde7F2uqbBv600gQu4a4Iu');
 
 
-/* GET home page. */
+
+const transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  auth: {
+    user: 'erwanmettouchi@gmail.com',
+    pass: 'rvljqcqtufyqyeok',
+  },
+});
+
+/* ------------------------------------------------ PAGE D'ACCUEIL -----------------------------------*/
+
 router.get('/', async (req, res) => {
   const allCategories = await Categorie.find();
   const allMarques = await Marques.find();
@@ -17,93 +30,129 @@ router.get('/', async (req, res) => {
   if (req.session.user === undefined) {
     req.session.user = [];
   }
-  if(req.session.cart === undefined) {
+  if (req.session.cart === undefined) {
     req.session.cart = [];
   }
   console.log(req.session.user)
-  res.render('index', { categorie: allCategories, marques: allMarques, user: req.session.user, panier : req.session.cart });
-
-
+  res.render('index', { categorie: allCategories, marques: allMarques, user: req.session.user, panier: req.session.cart });
 });
 
-// Inscription
+/* ------------------------------------------------ PAGE D'INSCRIPTION -----------------------------------*/
 
-router.get('/inscription', (req, res) => {
+
+router.get('/signup', (req, res) => {
+  if (req.session.user === undefined) {
+    req.session.user = [];
+  }
+  if (req.session.cart === undefined) {
+    req.session.cart = [];
+  }
+
   if (req.session.user.length === 0) {
-    res.render('inscription', { user: req.session.user, panier : req.session.cart })
+    res.render('inscription', { user: req.session.user, panier: req.session.cart })
   } else {
     res.redirect('/');
   }
 })
 
-router.post('/sign-up', async (req, res) => {
+/* ------------------------------------------------ INSCRIPTION D'UN UTILISATEUR DANS LA BASE DE DONNÉES -----------------------------------*/
 
+router.post('/signup', async (req, res) => {
+  if (req.session.user === undefined) {
+    req.session.user = [];
+  }
+
+  if (req.session.cart === undefined) {
+    req.session.cart = [];
+  }
   let erreurInscription = [];
+  const { nom, prenom, email, motDePasse, motDePasseConfirmation, telephone, adresse } = req.body;
   let body = req.body;
-  let motDePasse = body.motDePasse;
   let salt = await bcrypt.genSalt(10);
   let hashedPassword = await bcrypt.hash(motDePasse, salt);
+  const regex = /[<\/>]/g;
+  const regexMdp = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]{8,20}$/
+  const regexPhone = /^0[1-9](\d{2}){4}$/;
+  const regexMail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  let mailAlreadyExists = await Utilisateur.findOne({
-    email: body.email
-  });
+  let mailAlreadyExists = await Utilisateur.findOne({email});
 
-  let phoneAlreadyExists = await Utilisateur.findOne({ telephone: body.telephone });
+  let phoneAlreadyExists = await Utilisateur.findOne({ telephone });
 
-  console.log(mailAlreadyExists);
+  // Tous les if pour gérer les erreurs à l'inscription de l'utilisateur
   if (mailAlreadyExists != null) {
-    erreurInscription.push('L\'email utilisé existe déjà, veuillez en entrer un autre');
-    // console.log(erreurInscription);
+      erreurInscription.push('L\'email utilisé existe déjà, veuillez en entrer un autre');
+  } else if (phoneAlreadyExists != null) {
+      erreurInscription.push('Le telephone utilisé existe déjà, veuillez en entrer un autre');
+  } else if (prenom.trim() === "" || body.email.trim() === "" || body.motDePasse.trim() === "" || body.telephone.trim() === "" || body.adresse.trim() === "") {
+      erreurInscription.push('Un ou plusieurs champs sont vide');
+  } else if (prenom.search(regex) !== -1 || body.nom.search(regex) !== -1 || body.email.search(regex) !== -1 || body.telephone.search(regex) !== -1 || body.adresse.search(regex) !== -1) {
+      erreurInscription.push('Les caractères spéciaux ne sont pas autorisés');
+  } else if (regexMdp.test(motDePasse) === false) {
+      erreurInscription.push('Le mot de passe doit contenir entre 8 et 20 caractères, dont 1 majuscule, 1 minuscule et 1 chiffre');
+  } else if (regexPhone.test(telephone) === false) {
+      erreurInscription.push('Le numéro de téléphone n\'est pas valide');
+  } else if (regexMail.test(email) === false) {
+      erreurInscription.push('Le mail n\'est pas valide');
+  } else if(motDePasse !== motDePasseConfirmation) {
+      erreurInscription.push('Les mots de passe ne sont pas identiques');
   }
-
-  if (phoneAlreadyExists != null) {
-    erreurInscription.push('Le telephone utilisé existe déjà, veuillez en entrer un autre');
-  }
-
-  if (body.prenom === "" || body.email === "" || body.motDePasse === "" || body.telephone === "" || body.adresse === "") {
-    erreurInscription.push('Un ou plusieurs champs sont vides, veuillez les remplir')
-    console.log("ERREURS : ", erreurInscription);
-  }
-
-
-  if (body.motDePasse != body.motDePasseConfirmation) {
-    erreurInscription.push('Les mots de passe ne correspondent pas');
-  }
-
-  if (erreurInscription.length === 0) {
-    let newUser = new Utilisateur({
-      prenom: body.prenom,
-      nom: body.nom,
-      email: body.email,
+  // S'il n'y a pas d'erreur, on ajoute le nouveau utilisateur à la base de données
+  else {
+    const newUser = new Utilisateur({
+      prenom : prenom,
+      nom : nom,
+      email : email,
       motDePasse: hashedPassword,
-      telephone: body.telephone,
-      isAdmin: false,
-      adresse: body.adresse
+      telephone : telephone,
+      adresse : adresse,
     })
-    let userSignedUp = await newUser.save();
-
+    const userSaved = await newUser.save();
+    const mailOptions = {
+      from: 'erwanmettouchi@gmail.com',
+      to: userSaved.email,
+      subject: 'Inscription réussie',
+      text: `Bienvenue ${userSaved.prenom} ${userSaved.nom} ! Votre inscription au site E-Achat été effectuée avec succès.`,
+    };
+  
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('E-mail envoyé : ' + info.response);
+      }
+    });
     req.session.user.push({
-      id: userSignedUp.id
+      id: userSaved.id,
     })
     return res.redirect('/');
-  } else {
-    return res.render('inscription', { erreurs: erreurInscription, body, user: req.session.user, panier : req.session.cart });
+  }
+  res.render('inscription', { erreurs: erreurInscription, nom, prenom, email, adresse, telephone, user: req.session.user, panier: req.session.cart });
+  });
+
+
+
+/* ------------------------------------------------ PAGE DE CONNEXION -----------------------------------*/
+
+router.get('/login', (req, res) => {
+  if (req.session.user === undefined) {
+    req.session.user = [];
   }
 
-})
+  if (req.session.cart === undefined) {
+    req.session.cart = [];
+  }
 
-
-// Authentification
-
-router.get('/connexion', (req, res) => {
   if (req.session.user.length === 0) {
-    res.render('connexion', { user: req.session.user, panier : req.session.cart });
+    res.render('connexion', { user: req.session.user, panier: req.session.cart });
   } else {
     res.redirect('/');
   }
 })
 
-router.post('/sign-in', async (req, res) => {
+/* ------------------------------------------------ AUTHENTIFICATION DE L'UTILISATEUR -----------------------------------*/
+
+router.post('/login', async (req, res) => {
   let erreurAuthentification = [];
   let email = req.body.email;
   let mdp = req.body.motDePasse;
@@ -113,6 +162,10 @@ router.post('/sign-in', async (req, res) => {
   let user = await Utilisateur.findOne({
     email: email,
   })
+
+  if (!mdp || !email) {
+    erreurAuthentification.push('Une erreur est survenue, veuillez réessayer');
+  }
 
   if (!user) {
     erreurAuthentification.push('Email et/ou mot de passe invalide(s)');
@@ -133,171 +186,299 @@ router.post('/sign-in', async (req, res) => {
       res.redirect('/');
     }
   }
-  res.render('connexion', { user: req.session.user, erreurs: erreurAuthentification, panier : req.session.cart });
-
-
+  res.render('connexion', { user: req.session.user, erreurs: erreurAuthentification, panier: req.session.cart });
 })
+
+/* ------------------------------------------------ PAGE RECHERCHE DE PRODUIT -----------------------------------*/
+
 
 router.get('/search', async (req, res) => {
-  const searchResult = req.query.search;
-  const products = await Produits.find({$text : { $search : searchResult }}).exec();
-
-  res.render('search', { produits : products, user: req.session.user, search : searchResult, panier : req.session.cart });
-})
-
-router.get('/brand/:name', async (req, res) => {
-  const name = req.params.name;
-  let marque = await Marques.findOne({ nom : name });
-
-  console.log("MARQUE : ", marque)
-  let products = await Produits.find({ marque : marque.id }).populate('marque').exec();
-
-  console.log("PRODUITS : ", products);
-
-  res.render('brand', { produits: products, user: req.session.user, name, panier : req.session.cart });
-})
-
-// Compte de l'utilisateur
-
-router.get('/account', async (req, res) => {
-
-  if (req.session.user.length === 0 || req.session.user === undefined) {
-    return res.redirect('/');
-  } else {
-    let user = await Utilisateur.findById(req.session.user[0].id);
-    res.render('account', { user: user, panier : req.session.cart });
+  if (req.session.user === undefined) {
+    req.session.user = [];
   }
+  const searchResult = req.query.query;
+  const products = await Produits.find({ $text: { $search: searchResult } }).exec();
+
+  res.render('search', { produits: products, user: req.session.user, search: searchResult, panier: req.session.cart });
 })
 
-router.get('/categories/:name', async (req, res) => {
-  const name = req.params.name;
-  const categorie = await Categorie.findOne({ nom_url: name });
-  if (!categorie) {
-    return res.status(404).render('404' , {user: req.session.user, panier : req.session.cart})
-  }
 
-  const sousCategorie = await SousCategorie.find({ categorie: categorie.id }).populate('categorie').exec();
-  // console.log('Sous catégorie' + sousCategorie);
-
-  const products = await Produits.find({sousCategorie : {$in : sousCategorie}})
-                                 .populate({ 
-                                  path : 'sousCategorie', 
-                                  populate : { 
-                                    path : 'categorie'
-                                  }
-                                  })
-                                 .exec();
-  console.log("PRODUITS : ", products);
-  // console.log("marque : ", marque);
-
-  res.render('categories', { user: req.session.user, produits: products, name : name, panier : req.session.cart});
-})
-
-router.get('/sub-categories/:name', async (req, res) => {
-  let name = req.params.name;
-
-  let subcategorie = await SousCategorie.findOne({ nom_url: name });
-  let products = await Produits.find({ sousCategorie: subcategorie.id }).populate('sousCategorie').exec();
-  // console.log("Produits ", products);
-  return res.render('sub-category', { produits: products, user: req.session.user, name, panier : req.session.cart });
-})
-
-router.get('/account', (req, res) => {
-  console.log(req.session.user)
-  if (req.session.user.length === 0) {
-    res.status(401).redirect('/')
-  } else {
-    res.status(200).render('account', { user: req.session.user, panier : req.session.cart });
-  }
-})
+/* ------------------------------------------------ RÉCUPÉRATION DU PRODUIT GRÂCE À SON ID -----------------------------------*/
 
 router.get('/produit', async (req, res) => {
+  if (req.session.user === undefined) {
+    req.session.user = [];
+  }
+
   const id = req.query.id;
+  const userComment = await Commentaires.find({ produit: id }).populate('utilisateur').exec();
+  console.log("COMMENTAIRE : ", userComment);
+
   const produit = await Produits.findById(id);
 
   console.log(produit);
-  
-  if (!produit) {
-    return res.status(404).render('404', {user: req.session.user, panier : req.session.cart})
-  }else {
-  res.render('produit', { produit: produit, user: req.session.user, panier : req.session.cart})
-  }
+
+  res.render('produit', { produit: produit, user: req.session.user, panier: req.session.cart, commentaire: userComment })
 })
 
+/* ------------------------------------------------ Déconnexion -----------------------------------*/
+
+
 router.get('/logout', (req, res) => {
+  if (req.session.user === undefined) {
+    req.session.user = [];
+  }
   req.session.user = [];
   res.redirect('/');
 })
 
+/* ------------------------------------------------ AJOUT DE PRODUITS DANS LE PANIER -----------------------------------*/
 
-router.get('/admin', (req, res) => {
-  req.session.user = [];
-  if (req.session.admin === undefined) {
-    req.session.admin = [];
+router.post('/add-to-cart', async (req, res) => {
+  const id = req.body.produit;
+  let produit = await Produits.findById(id);
+
+  let alreadyExists = false;
+
+
+  for (let i = 0; i < req.session.cart.length; i++) {
+    if (req.session.cart[i].id === id) {
+      req.session.cart[i].quantite += 1;
+      alreadyExists = true;
+    }
   }
-  res.render("connexion-admin")
+
+
+  if (!alreadyExists) {
+    req.session.cart.push({
+      id: id,
+      prix: produit.prix,
+      quantite: 1,
+      nom: produit.nom,
+      image: produit.image,
+    });
+  }
+
+  res.redirect('/produit?id=' + id);
 })
 
-router.post('/admin-connexion', async (req, res) => {
+/* ------------------------------------------------ PAGE POUR VOIR LE PANIER -----------------------------------*/
 
-  req.session.user = [];
+router.get('/cart', async (req, res) => {
+  if (req.session.user === undefined) {
+    req.session.user = [];
+  }
+  if (req.session.cart === undefined) {
+    req.session.cart = [];
+  }
+  res.render('cart', { user: req.session.user, panier: req.session.cart })
+})
 
-  let erreurAuthentificationAdmin = [];
-  const admin = await Utilisateur.findOne({
-    email: req.body.email,
-    isAdmin: true,
-  });
 
-  console.log(admin)
+/* ------------------------------------------------ SUPPRESSION D'UN PRODUIT DU PANIER ----------------------------*/
 
-  if (!admin) {
-    erreurAuthentificationAdmin.push('Une erreur est survenue, veuillez réessayer');
-    return res.status(401).render('connexion-admin', { erreurs: erreurAuthentificationAdmin, panier : req.session.cart })
+router.get('/delete-product', (req, res) => {
+  if (req.session.user === undefined) {
+    req.session.user = [];
+  }
+  const position = req.query.position;
+  req.session.cart.splice(position, 1)
+  res.redirect('/cart');
+})
+
+/* ------------------------------------------------ ACHAT DU PANIER GRÂCE À STRIPE ----------------------------*/
+
+router.get('/checkout', async (req, res) => {
+  if (req.session.user === undefined) {
+    req.session.user = [];
+  }
+  if (req.session.cart === undefined) {
+    req.session.cart = [];
   }
 
-  let validPassword = await bcrypt.compare(req.body.motDePasse, admin.motDePasse);
-
-  if (validPassword) {
-    req.session.admin.push({
-      id: admin.id,
-    })
-    return res.status(200).redirect('/admin/products');
+  if (req.session.cart.length === 0) {
+    res.redirect('/')
+  }else  if (req.session.user.length === 0) {
+    res.redirect('/login');
+  }else if(req.session.user.length === 0 && req.session.cart.length === 0 ){
+    res.redirect('/')
   } else {
-    erreurAuthentificationAdmin.push('Une erreur est survenue, veuillez réessayer');
-    return res.status(401).render('connexion-admin', { erreurs: erreurAuthentificationAdmin, panier : req.session.cart })
+    let stripeItems = [];
+    for (let i = 0; i < req.session.cart.length; i++) {
+      stripeItems.push({
+        price_data: {
+          currency: 'eur',
+          product_data: {
+            name: req.session.cart[i].nom,
+          },
+          unit_amount: req.session.cart[i].prix * 100,
+        },
+        quantity: req.session.cart[i].quantite,
+      });
+    }
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: stripeItems,
+      mode: "payment",
+      success_url: "http://localhost:3000/confirm",
+      cancel_url: "http://localhost:3000/",
+    });
+    res.redirect(303, session.url);
   }
 })
 
-router.get('/admin/products', async (req, res) => {
-  if (req.session.admin === []) {
-    return res.status(401).redirect('/admin')
+/* ----------------------------------------------- CONFIRMATION DE L'ACHAT ------------------------------------------*/
+
+
+router.get('/confirm', async (req, res) => {
+  const user = await Utilisateur.findById(req.session.user[0].id);
+
+  if (req.session.user === undefined) {
+    req.session.user = [];
   }
-  const marque = await Marques.find()
-  const sousCategorie = await SousCategorie.find()
-
-  res.render('admin-products', { marque, sousCategorie, panier : req.session.cart });
+  else if (req.session.cart === undefined) {
+    req.session.cart = [];
+  }
+  else if (req.session.cart.length === 0 || req.session.user.length === 0) {
+    res.redirect('/');
+  } 
+  else {
+    let quantite = 0;
+    let prixTotal = 0
+    for (prod of req.session.cart) {
+      quantite += prod.quantite;
+      prixTotal += prod.prix * prod.quantite;
+    }
+    const newCart = new Panier({
+      prixTotal: prixTotal,
+      quantiteProduits: quantite,
+      produits: req.session.cart,
+      utilisateur: req.session.user[0].id,
+    })
+    const cartCreated = await newCart.save();
+    const newCommande = new Commande({
+      panier: cartCreated.id
+    })
+    await newCommande.save();
+    const mailOptions = {
+      from: 'erwanmettouchi@gmail.com',
+      to: user.email,
+      subject: 'Commande validée!',
+      text: `Bonjour ${user.prenom} ${user.nom}, votre commande de ${newCart.prixTotal}€ a bien été validée. Votre numéro de commande est : ${newCommande.numero}`,
+    };
+  
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('E-mail envoyé : ' + info.response);
+      }
+    });
+    req.session.cart = [];
+    res.redirect('/')
+  }
 })
 
-router.post('/insert-product', async (req, res) => {
-  const marque = await Marques.find()
-  const sousCategorie = await SousCategorie.find()
+/* ----------------------------------------------- AJOUT DE COMMENTAIRES ------------------------------------------*/
 
-  const newProduct = new Produits({
-    nom: req.body.nomProduit,
-    description: req.body.description,
-    prix: req.body.prix,
-    stock: req.body.stock,
-    sousCategorie: req.body.souscategorie,
-    marque: req.body.marque,
-    image: req.body.image
-  })
-  await newProduct.save();
-  res.render('admin-products', { marque, sousCategorie, panier : req.session.cart });
+router.post('/add-comment', async (req, res) => {
+  const id = req.body.produit;
+  const comment = req.body.commentaire
+  const titre = req.body.titre
+  const regex = /[<\/>]/g;
+  let erreurCommentaire = [];
+
+  if (req.session.user === []) {
+    res.redirect('/login')
+  }
+
+  if(comment.search(regex)!== -1 || titre.search(regex) !== -1){
+    erreurCommentaire.push("Les caractères spéciaux sont autorisés")
+  }else if(comment.trim().length === 0 || titre.trim().length === 0){
+    erreurCommentaire.push("Veuillez remplir tous les champs")
+  }else {
+    const newComment = new Commentaires({
+      contenu: comment,
+      utilisateur: req.session.user[0].id,
+      produit: id,
+      titre: titre
+    });
+    await newComment.save();
+    res.redirect('/produit?id=' + id);
+  }
 })
 
-// Envoie une erreur 404 si la page n'existe pas
-router.get('*', (req, res) => {
-  return res.status(404).render('404', {user : req.session.user, panier : req.session.cart});
-});
+/* ------------------------------------------------ PAGE COMPTE DE L'UTILISATEUR -----------------------------------*/
+
+router.get('/account', async (req, res) => {
+  if (req.session.user === undefined) {
+    req.session.user = [];
+  }
+  if (req.session.user.length === 0) {
+    res.redirect('/')
+  } 
+
+  const user = await Utilisateur.findById(req.session.user[0].id);
+  res.render('account', { user: req.session.user, panier: req.session.cart, utilisateur : user });
+})
+
+/* ----------------------------------------------- MODIFIER LES INFORMATIONS DU COMPTE DE L'UTILISATEUR CONNECTÉ ------------------------------------------*/
+
+router.post('/update-user', async (req, res) => {
+  let erreurModification = [];
+  let body = req.body;
+  let motDePasse = body.motDePasse;
+  let salt = await bcrypt.genSalt(10);
+  let hashedPassword = await bcrypt.hash(motDePasse, salt);
+  const regex = /[<\/>]/g;
+  const regexMdp = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]{8,20}$/
+  const user = await Utilisateur.findById(req.session.user[0].id);
+
+  // Tous les if pour gérer les erreurs à pour la modification des informations de l'utilisateur
+  if (body.prenom.trim() === "" || body.email.trim() === "" || body.motDePasse.trim() === "" || body.telephone.trim() === "" || body.adresse.trim() === "") {
+    console.log("ERREURS : ", erreurInscription);
+  } else if (body.prenom.search(regex) !== -1 || body.nom.search(regex) !== -1 || body.adresse.search(regex) !== -1) {
+    erreurModification.push('Les caractères spéciaux ne sont pas autorisés');
+  } else if (regexMdp.test(body.motDePasse) === false) {
+    erreurModification.push('Le mot de passe doit contenir entre 8 et 20 caractères, dont 1 majuscule, 1 minuscule et 1 chiffre');
+  }
+  // S'il n'y a pas d'erreur, on modifie les informations de l'utilisateur dans la base de données
+  else {
+    await Utilisateur.findByIdAndUpdate(req.session.user[0].id, {
+      prenom : body.prenom,
+      nom: body.nom,
+      motDePasse: hashedPassword,
+      adresse: body.adresse
+    })
+    return res.redirect('/');
+  }
+  res.render('account', { erreurs: erreurModification, body, user: req.session.user, panier: req.session.cart, utilisateur : user });
+})
+
+router.get('/delete-account', async (req, res) => {
+  if (req.session.user === undefined) {
+    req.session.user = [];
+  }
+  if (req.session.user.length === 0) {
+    res.redirect('/')
+  }
+  await Utilisateur.findByIdAndDelete(req.session.user[0].id);
+  await Commentaires.deleteMany({ utilisateur: req.session.user[0].id });
+  req.session.user = [];
+
+  res.redirect('/')
+})
+
+/* ----------------------------------------------- PAGE À PROPOS ------------------------------------------*/
+
+router.get('/a-propos', (req,res) => {
+  if (req.session.user === undefined) {
+    req.session.user = [];
+  }
+  if (req.session.cart === undefined) {
+    req.session.cart = []
+  }
+  res.render('a-propos', {user: req.session.user, panier: req.session.cart});
+})
 
 module.exports = router;

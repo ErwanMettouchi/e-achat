@@ -1,0 +1,114 @@
+.product-content {
+    width: 90%;
+    position: relative;
+    margin: 20px auto;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    height: 400px;
+    overflow: hidden;
+    background-color: #fff;
+    border-radius: 15px;
+    border: none;
+    box-shadow: var(--box-shadow);
+}
+
+
+.main-product-image {
+    padding: 0;
+    max-width: 20%;
+    max-height: 250px;
+}
+
+.main-product-image img {
+    height: auto;
+    max-width: 100%;
+}
+
+.main-product-description-and-name {
+    min-width: 50%;
+    padding: 10px;
+}
+
+p.main-product-description {
+    margin-top: 40px;
+}
+
+.main-product-price {
+    border-left: 1px solid rgba(0,0,0,0.15);
+    padding: 5%;
+}
+
+.review-content {
+    width: 90%;
+    margin: 20px auto;
+    background-color: #fff;
+    display: flex;
+    flex-flow: column nowrap;
+    position: relative;
+    justify-content: center;
+    box-shadow: var(--box-shadow);
+    border-radius: 5px;
+    border: none;
+    overflow: hidden;
+    border-radius: 15px;
+}
+
+.review-header  {
+    height: 40px;
+    align-items: center;
+}
+
+.review {
+    padding: 15px;
+    border-bottom: 1px solid rgba(0,0,0,0.15);
+    color: rgb(64, 64, 64);
+    font-size: 1.2rem;
+}
+
+.add-comment {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px;
+    border: none;
+    box-shadow: var(--box-shadow);
+    background-color: #fff;
+    margin: 20px auto;
+}
+
+form[id="add-comment"] {
+    width: 40%;
+    margin: auto;
+}
+
+form button {
+    width: 99%;
+}
+
+@media screen and (max-width: 550px) {
+    .product-content {
+        width: 100%;
+        flex-flow: column wrap;
+        height: auto;
+    }
+
+    .main-product-image {
+        align-self: center;
+        justify-self: center;
+    }
+
+    .main-product-description-and-name {
+        border-top: 1px solid rgba(0,0,0,0.15);
+    }
+
+    .main-product-price {
+        border-top: 1px solid rgba(0,0,0,0.15);
+        border-left: none;
+    }
+
+    .review-content {
+        width: 100%;
+    }
+}

@@ -3,8 +3,8 @@
 
 <head>
     <%- include('./head') %>
-    <title>Inscription</title>
-    <meta name="description" content="Formulaire d'inscription au site e-achat">
+    <title>E-Achat - Connexion</title>
+    <meta name="description" content="Formulaire de connexion du site e-achat">
     <link rel="stylesheet" href="/css/formulaire.css">
 </head>
 
@@ -13,7 +13,7 @@
     <div class="container">
         <%- include('./header.ejs') %>
         <main class="content">
-            <form action="/sign-in" method="post">
+            <form action="/login" method="post">
                 
                 <h1 class="font-32 text-align-center">Connexion</h1>
                 <% if(locals.erreurs) {
@@ -30,7 +30,7 @@
                         <i class="fa-solid fa-eye-slash" id="showPassword"></i>
                     </p>
                     <p class="text-align-center font-14">
-                        Je n'ai pas de compte, je veux <a href="/inscription" ><span class="text-primary">en créer un</span></a>
+                        Je n'ai pas de compte, je veux <a href="/signup" ><span class="text-primary">en créer un</span></a>
                     </p>
                     <p class="text-align-center">
                         <button type="submit" class="btn btn-primary">Connexion</button>

@@ -16,7 +16,6 @@ function showPassword() {
         password.type === 'password' ? password.type = 'text' : password.type = 'password';
         eye.classList.toggle('fa-eye');
     })
-
 }
 
 function reduceDescription() {

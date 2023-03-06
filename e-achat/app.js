@@ -6,7 +6,11 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/user.js');
+var categoriesRouter = require('./routes/categories');
+var sousCategoriesRouter = require('./routes/sub-categories');
+var marqueRouter = require('./routes/marques');
+var adminRouter = require('./routes/admin');
+
 
 var session = require("express-session");
 
@@ -17,7 +21,10 @@ app.use(
   secret: 'a4f8071f-c873-4447-8ee2', 
   resave: false, 
   saveUninitialized: false,
-   }) 
+  cookie : {
+   maxAge : 60000
+  }
+   }) ,
 );
 
 // view engine setup
@@ -31,14 +38,30 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/categories', categoriesRouter);
+app.use('/sub-categories', sousCategoriesRouter);
+app.use('/brand', marqueRouter);
+app.use('/admin', adminRouter);
+
+app.locals.dateFormat = function(x){
+  let date = new Date(x)
+  let jourDuMois = date.getDate()
+  let mois = date.getMonth()+1
+  let annee = date.getFullYear()
+  if(jourDuMois < 10) {
+    jourDuMois = "0" + jourDuMois
+  }
+  if(mois < 10){
+    mois = "0" + mois
+  }
+  return jourDuMois + "/" + mois + "/" + annee
+}
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404));
+  return res.status(404).render('404');
 });
 
-// error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
@@ -48,5 +71,6 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
 
 module.exports = app;

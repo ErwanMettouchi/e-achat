@@ -4,7 +4,7 @@
         <form action="/search" method="get">
             <div class="search-bar">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="search" name="search" placeholder="Rechercher des articles..." value="<%= locals.search ? search : "" %>">
+                <input type="search" name="query" placeholder="Rechercher des articles..." value="<%= locals.search ? search : "" %>">
             </div>
         </form>
         <div class="nav-links">
@@ -14,8 +14,8 @@
                     <p>
                         <% if(user.length !== 0){ %>
                             <a href="/account">Mon compte</a>
-                        <% }else{ %>
-                            <a href="/connexion">Connexion/Inscription</a>
+                            <% }else{ %>
+                                <a href="/login">Connexion/Inscription</a>
                         <% } %>
                     </p>
                 </li>

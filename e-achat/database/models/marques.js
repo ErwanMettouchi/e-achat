@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
-const marqueSchema = new mongoose.Schema({
-    nom : String
+const marqueSchema = mongoose.Schema({
+    nom: String
 })
 
 const marqueModel = mongoose.model('marques', marqueSchema);

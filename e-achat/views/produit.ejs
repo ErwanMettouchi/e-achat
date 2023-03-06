@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./head') %>
+        <link rel="stylesheet" href="/css/main-product.css">
+        <title>E-Achat - <%= produit.nom %>
+        </title>
+</head>
+
+<body>
+    <div class="container">
+        <%- include('./header') %>
+            <main class="content">
+                <section>
+                    <article class="product-content">
+                        <div class="main-product-image">
+                            <img src="<%= produit.image %>" alt="<%= produit.nom %>" title="<%= produit.nom %>">
+                        </div>
+                        <div class="main-product-description-and-name">
+                            <h2 class="main-product-name text-align-center font-32">
+                                <%= produit.nom %>
+                            </h2>
+                            <p class="font-14 main-product-description">
+                                <%= produit.description %>
+                            </p><br><br><br><br>
+                            <p class="text-align-center font-14" style="color:rgb(110, 95, 95)">
+                                    <%= commentaire.length %> avis à propos de ce produit
+                            </p>
+                        </div>
+                        <div class="main-product-price">
+                            <h2 class="text-danger text-align-center font-32">
+                                <%= produit.prix %>€
+                            </h2><br><br><br>
+                            <h2 class="text-success text-align-center font-32">
+                                <%= (produit.stock>= 10) ? "EN STOCK" : (produit.stock < 10 && produit.stock> 0) ?
+                                        "STOCK LIMITÉ" : "RUPTURE DE STOCK" %>
+                            </h2><br><br><br>
+                            <form action="/add-to-cart" method="post">
+                                <input type="hidden" name="produit" value="<%= produit.id %>">
+                                <button class="btn btn-success">Ajouter au panier</button>
+                            </form>
+                        </div>
+                    </article>
+                </section>
+                <section>
+                    <article class="review-container">
+                        <div class="review-content">
+                            <header class="space-between align-center" style="border-bottom: 1px solid rgba(0,0,0,0.15); padding:15px">
+                                <h2><%= commentaire.length %> avis de la communauté à propos de ce produit</h2>
+                                <a href="#add-comment" class="btn btn-success">Donner un avis</a>
+                            </header>
+                            <% for(comment of commentaire) { %>
+                                <div class="review-header" style="padding: 15px">
+                                    <div class="align-center space-between">
+                                        <strong class='font-14'>Par <%= comment.utilisateur.nom %> <%= comment.utilisateur.prenom %></strong>
+                                        <span style="color : rgb(110, 95, 95)" class="font-14">Le <%= dateFormat(comment.date_commentaire) %></span>
+                                    </div><br><br>
+                                    <strong style="font-size: 22px"><%= comment.titre %></strong>
+                                </div><br><br><br>
+                                <div class="review">
+                                    <%= comment.contenu %>
+                                </div>
+                            <% } %>
+                        </div>
+                        </article>
+                            <form action="/add-comment" method="post" id="add-comment">
+                                <input type="hidden" name="produit" value="<%= produit.id %>">
+                                <input type="text" name="titre" placeholder="Titre" class="form-control">
+                                <textarea type="text" name="commentaire" id="commentaire"
+                                    placeholder="Écrivez un commentaire concernant le produit <%= produit.nom %>"
+                                    class="form-control" rows="10"></textarea>
+                                <button class="btn btn-primary">Ajouter un commentaire</button>
+                            </form>
+                </section>
+            </main>
+            <%- include('./footer') %>
+    </div>
+</body>
+<script src="https://kit.fontawesome.com/8c916de43d.js" crossorigin="anonymous"></script>
+<script src="/js/main.js"></script>
+
+</html>

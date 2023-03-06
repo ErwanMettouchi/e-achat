@@ -3,22 +3,59 @@
 
 <head>
     <%- include('./head') %>
-        <title>E-achat - Compte de <%= user.prenom %>
-                <%= user.nom %>
-        </title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>E-achat - Compte de <%= utilisateur.prenom %>
+        <%= utilisateur.nom %>
+    </title>
+    <meta name="description" content="Formulaire d'inscription au site e-achat">
+    <link rel="stylesheet" href="/css/formulaire.css">
 </head>
 
 <body>
+
     <div class="container">
-        <%- include('./header') %>
+        <%- include('./header.ejs') %>
         <main class="content">
-            <a href="/logout"><button class="btn btn-danger">Se déconnecter</button></a>
-        </main>
-            <%- include('./footer') %>
+                <h1 class="font-32 text-align-center">Modification des informations</h1>
+                <form action="/update-user" method="post" >
+                    <% if(locals.erreurs){ 
+                    for (erreur of erreurs) { %>
+                        <p class="text-align-center text-danger font-14"><%= erreur %></p>
+                    <% }} %> 
+                    <p>
+                        <label for="prenom" class="font-14">Prénom <span class="required">*</span></label>
+                        <input type="text" class="form-control" name="prenom" id="prenom" placeholder="Prénom" required value="<%= utilisateur.prenom %>">
+                    </p>
+                    <p>
+                        <label for="nom" class="font-14">Nom de famille</label>
+                        <input type="text" name="nom" id="nom" class="form-control" placeholder="Nom de famille" value="<%= utilisateur.nom %>">
+                    </p>
+                    <p>
+                        <label for="emailInscription" class="font-14">Email <span class="required">*</span></label>
+                        <input type="email" name="email" id="emailInscription" placeholder="Email" class="form-control" required value="<%= utilisateur.email %>">
+                    </p>
+                    <p>
+                        <label for="mdpInscription" class="font-14">Mot de passe <span class="required">*</span></label>
+                        <input type="password" name="motDePasse" id="password" placeholder="Mot de passe" class="form-control" required>
+                        <i class="fa-solid fa-eye-slash" id="showPassword"></i>
+                    </p>
+                    <p>
+                        <label for="telephone" class="font-14">Téléphone <span class="required">*</span></label>
+                        <input type="tel" name="telephone" id="telephone" class="form-control" placeholder="Numéro de téléphone" required value="<%= utilisateur.telephone %>">
+                    </p>    
+                    <p>
+                        <label for="adresse" class="font-14">Adresse <span class="required">*</span></label>
+                        <textarea name="adresse" id="adresse" cols="30" rows="5" class="form-control" placeholder="Adresse" required><%= utilisateur.adresse %></textarea>
+                    </p>
+                    <p>
+                        <button type="submit" class="btn btn-primary">Modifier</button>
+                    </p>
+                </form>
+            </main>
+            <a href="/logout" class="btn btn-primary">Déconnexion</a>
+            <a href="/delete-account" class="btn btn-danger m-top10" sty>Supprimer mon compte</a>
+            <%- include('./footer.ejs') %>
     </div>
 </body>
 <script src="https://kit.fontawesome.com/8c916de43d.js" crossorigin="anonymous"></script>
 <script src="/js/main.js"></script>
-
 </html>
