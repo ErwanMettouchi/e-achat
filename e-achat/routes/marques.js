@@ -7,6 +7,9 @@ router.get('/:name', async (req, res) => {
     if(req.session.user === undefined) {
         req.session.user = [];
       }
+      if(req.session.cart === undefined) {
+        req.session.cart = [];
+      }
     const name = req.params.name;
     let marque = await Marques.findOne({ nom : name });
   

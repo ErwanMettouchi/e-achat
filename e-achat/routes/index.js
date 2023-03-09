@@ -10,8 +10,7 @@ const Commentaires = require('../database/models/commentaires');
 const Panier = require('../database/models/paniers')
 const Commande = require('../database/models/commandes')
 const stripe = require('stripe')('sk_test_51Mi7CWB4WDlWyEMwXbFuxxazynUV9JJKREchAEg53DPMjjONrD3Y5O1RK9OF8BgwTLLtX823Gu4jvde7F2uqbBv600gQu4a4Iu');
-
-
+const {faker} = require('@faker-js/faker');
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
@@ -65,13 +64,18 @@ router.post('/signup', async (req, res) => {
   if (req.session.cart === undefined) {
     req.session.cart = [];
   }
-  let erreurInscription = [];
+  const erreurInscription = [];
   const { nom, prenom, email, motDePasse, motDePasseConfirmation, pseudo, telephone, adresse } = req.body;
-  let salt = await bcrypt.genSalt(10);
-  let hashedPassword = await bcrypt.hash(motDePasse, salt);
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(motDePasse, salt);
+
+  // Expression régulière qui vérifie qu'il n'y a pas de caractère html (< ou > ou /)
   const regex = /[<\/>]/g;
+  // Expression régulière qui vérifie que le mot de passe contient au moins une minuscule, un chiffre et une majuscule, et qu'il fait entre 8 et 20 caractères.
   const regexMdp = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]{8,20}$/
+  // Expression régulière pour vérifier que le téléphone est un téléphone français valide
   const regexPhone = /^0[1-9](\d{2}){4}$/;
+  // Expression régulière pour vérifier que le mail comporte un seul @ et qu'il y a un point après le @
   const regexMail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const mailAlreadyExists = await Utilisateur.findOne({email});
@@ -114,6 +118,8 @@ router.post('/signup', async (req, res) => {
       adresse : adresse,
     })
     const userSaved = await newUser.save();
+
+    // Envoi du mail de confirmation de l'inscription
     const mailOptions = {
       from: 'erwanmettouchi@gmail.com',
       to: userSaved.email,
@@ -343,25 +349,40 @@ router.get('/confirm', async (req, res) => {
   }
   else if (req.session.cart.length === 0 || req.session.user.length === 0) {
     res.redirect('/');
-  } 
-  else {
+  } else {
     let quantite = 0;
     let prixTotal = 0
     for (prod of req.session.cart) {
       quantite += prod.quantite;
       prixTotal += prod.prix * prod.quantite;
     }
+
     const newCart = new Panier({
       prixTotal: prixTotal,
       quantiteProduits: quantite,
-      produits: req.session.cart,
       utilisateur: req.session.user[0].id,
     })
+
+    // J'ajoute les id des produits présent dans la session panier dans le panier fraîchement crée dans la base de données
+    req.session.cart.forEach(function(cartItem) {
+      newCart.produits.push(cartItem.id)
+    })
+
     const cartCreated = await newCart.save();
+
+    // Je mets à jour chaque produit du panier dans la base de données en ajoutant l'id du nouveau panier 
+    req.session.cart.forEach(async function(cartItem) {
+      await Produits.findByIdAndUpdate(cartItem.id, { $push: { paniers : cartCreated.id } });
+    })
+
+
     const newCommande = new Commande({
       panier: cartCreated.id
     })
+
     await newCommande.save();
+
+    // Envoi du mail de confirmation de l'achat
     const mailOptions = {
       from: 'erwanmettouchi@gmail.com',
       to: user.email,
@@ -390,6 +411,7 @@ router.post('/add-comment', async (req, res) => {
   const regex = /[<\/>]/g;
   let erreurCommentaire = [];
 
+  // Redirection vers la page de connexion si l'utilisateur n'est pas connecté et qu'il veut ajouter un commentaire
   if (req.session.user === []) {
     res.redirect('/login')
   }
@@ -482,5 +504,33 @@ router.get('/a-propos', (req,res) => {
   }
   res.render('a-propos', {user: req.session.user, panier: req.session.cart});
 })
+
+
+/* ----------------------------------------------- Jeu de données/ Création de faux commentaires ------------------------------------------*/
+
+router.get('/add-fake-comments', async (req, res) => {
+  
+  const product = await Produits.find();
+  const user = await Utilisateur.find();
+
+  for(i = 0; i < 20 ; i++) {
+    // Prend un utilisateur random dans la base de données
+    let randomUser = user[Math.floor(Math.random() * user.length)];
+    // Prend un produit random dans la base de données
+    let randomProduct = product[Math.floor(Math.random() * product.length)];
+    // Ajout de commentaires dans la base de données grâce au package faker
+    const newComment = new Commentaires({
+      contenu : faker.lorem.sentences(),
+      titre : faker.lorem.slug(),
+      utilisateur: randomUser._id,
+      produit : randomProduct._id,
+      date : faker.date.past()
+    })
+    await newComment.save();
+  }
+ 
+  res.render('index', { user: req.session.user, panier: req.session.cart});
+})
+
 
 module.exports = router;

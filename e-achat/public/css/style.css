@@ -2,8 +2,6 @@
   padding: 0;
   margin: 0;
   box-sizing: border-box;  
-  list-style-type: none;
-  text-decoration: none; 
 }
 
 :root {
@@ -17,13 +15,18 @@
     --links-color: #2980b9;
 }
 
-
-
 html, body {
   font-size: 10px;
   font-family: var(--font-family-bold);
   background-color: #E2EBEC;
-  min-width: 100%;
+}
+
+a {
+  text-decoration: none;
+}
+
+ul {
+  list-style-type: none;
 }
 
 .container {
@@ -352,6 +355,7 @@ section .categories {
   .navbar {
     flex-direction: column;
     justify-content: center;
+    position: relative;
   }
 
   .navbar .logo {
@@ -369,6 +373,7 @@ section .categories {
     justify-content: center;
     align-items: center;
     margin-left: -100%;
+    z-index: 1;
   }
 
   .nav-links.mobile-menu {
@@ -399,6 +404,8 @@ section .categories {
 
   img.menu-burger {
     display: block;
+    position: absolute;
+    z-index: 1;
   }
 
   /* Page d'accueil */
@@ -409,9 +416,6 @@ section .categories {
 }
 
 @media screen and (max-width: 500px) {
-  .category-card h2 a {
-    font-size: 2.3rem;
-  }
 
   .brand-links-container {
     min-height: 500px;
@@ -430,11 +434,7 @@ section .categories {
   }
 
   .categories .category-card h2 {
-    text-align: center;
-    font-size: 2rem;
-    position: absolute;
-    margin: auto;
-    text-align: center;
+    font-size: 2.2rem;
   }
 }
 

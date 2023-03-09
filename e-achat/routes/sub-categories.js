@@ -7,6 +7,9 @@ router.get('/:name', async (req, res) => {
     if(req.session.user === undefined) {
         req.session.user = [];
       }
+    if(req.session.cart === undefined) {
+      req.session.cart = [];
+    }
     let name = req.params.name;
 
     let subcategorie = await SousCategorie.findOne({ nom_url: name });

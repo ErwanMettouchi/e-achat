@@ -64,7 +64,12 @@
                             <% } %>
                         </div>
                         </article>
+                        
                             <form action="/add-comment" method="post" id="add-comment">
+                                <% if(locals.erreurs){ 
+                                    for (erreur of erreurs) { %>
+                                        <p class="text-align-center text-danger font-14"><%= erreur %></p>
+                                    <% }} %> 
                                 <input type="hidden" name="produit" value="<%= produit.id %>">
                                 <input type="text" name="titre" placeholder="Titre" class="form-control">
                                 <textarea type="text" name="commentaire" id="commentaire"

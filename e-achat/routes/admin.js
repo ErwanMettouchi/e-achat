@@ -37,7 +37,7 @@ router.post('/login', async (req, res) => {
         return res.status(200).redirect('/admin/insert-products');
     } else {
         erreurAuthentificationAdmin.push('Une erreur est survenue, veuillez réessayer');
-        return res.render('connexion-admin', { erreurs: erreurAuthentificationAdmin, panier: req.session.cart })
+        return res.render('connexion-admin', { erreurs: erreurAuthentificationAdmin })
     }
 })
 
@@ -51,7 +51,7 @@ router.get('/insert-products', async (req, res) => {
     const marque = await Marques.find()
     const sousCategorie = await SousCategories.find()
 
-    res.render('admin-products', { marque, sousCategorie, panier: req.session.cart });
+    res.render('admin-products', { marque, sousCategorie });
 })
 
 router.post('/insert-product', async (req, res) => {
@@ -68,7 +68,12 @@ router.post('/insert-product', async (req, res) => {
         image: req.body.image
     })
     await newProduct.save();
-    res.render('admin-products', { marque, sousCategorie, panier: req.session.cart });
+    res.render('admin-products', { marque, sousCategorie});
+})
+
+router.get('/delete-product', async (req, res) => {
+    const produit = await Produits.find();
+    res.render('delete-product', { produit });
 })
 
 module.exports = router;

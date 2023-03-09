@@ -94,6 +94,10 @@ form button {
         height: auto;
     }
 
+    form[id="add-comment"] {
+        width: 100%;
+    }
+
     .main-product-image {
         align-self: center;
         justify-self: center;

@@ -7,7 +7,7 @@ const utilisateurSchema = mongoose.Schema({
     pseudo : {type : String, required : true , unique : true, minLength : 5, maxLength : 15},
     motDePasse: { type: String, required: true },
     telephone: { type: String, required: true, unique: true },
-    isAdmin: { type: Boolean, required: true, default: false },
+    role: { type: String, required: true, default: "user" },
     adresse: { type: String, required: true }
 });
 
