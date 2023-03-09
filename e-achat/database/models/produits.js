@@ -19,3 +19,5 @@ produitSchema.index({
 const produitModel = mongoose.model('produits', produitSchema);
 
 module.exports = produitModel;
+
+

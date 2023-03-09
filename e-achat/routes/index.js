@@ -32,7 +32,7 @@ router.get('/', async (req, res) => {
   if (req.session.cart === undefined) {
     req.session.cart = [];
   }
-  console.log('SESSION : ' ,req.session.user)
+
   res.render('index', { categorie: allCategories, marques: allMarques, user: req.session.user, panier: req.session.cart });
 });
 
