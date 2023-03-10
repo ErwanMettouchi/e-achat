@@ -19,7 +19,7 @@ router.post('/login', async (req, res) => {
     let erreurAuthentificationAdmin = [];
     const admin = await Utilisateur.findOne({
         email: req.body.email,
-        isAdmin: true,
+        role: "admin",
     });
     
     

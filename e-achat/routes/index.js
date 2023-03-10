@@ -64,7 +64,7 @@ router.post('/signup', async (req, res) => {
   if (req.session.cart === undefined) {
     req.session.cart = [];
   }
-  const erreurInscription = [];
+  let erreurInscription = [];
   const { nom, prenom, email, motDePasse, motDePasseConfirmation, pseudo, telephone, adresse } = req.body;
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(motDePasse, salt);
@@ -89,7 +89,7 @@ router.post('/signup', async (req, res) => {
       erreurInscription.push('L\'email utilisé existe déjà, veuillez en entrer un autre');
   } else if (phoneAlreadyExists != null) {
       erreurInscription.push('Le telephone utilisé existe déjà, veuillez en entrer un autre');
-  } else if (prenom.trim() === "" || email.trim() === "" || body.motDePasse.trim() === "" || pseudo.trimm() === "" || telephone.trim() === "" || adresse.trim() === "") {
+  } else if (prenom.trim() === "" || email.trim() === "" || motDePasse.trim() === "" || pseudo.trim() === "" || telephone.trim() === "" || adresse.trim() === "") {
       erreurInscription.push('Un ou plusieurs champs sont vide');
   } else if (prenom.search(regex) !== -1 || nom.search(regex) !== -1 || email.search(regex) !== -1 || pseudo.search(regex) !== -1 || telephone.search(regex) !== -1 || adresse.search(regex) !== -1) {
       erreurInscription.push('Les caractères spéciaux ne sont pas autorisés');
@@ -218,13 +218,16 @@ router.get('/produit', async (req, res) => {
     req.session.user = [];
   }
 
+  if (req.session.cart === undefined) {
+    req.session.cart = [];
+  }
+
   const id = req.query.id;
-  const userComment = await Commentaires.find({ produit: id }).populate('utilisateur').exec();
-  console.log("COMMENTAIRE : ", userComment);
 
   const produit = await Produits.findById(id);
 
-  console.log(produit);
+  const userComment = await Commentaires.find({ produit: id }).sort([['date_commentaire', -1]]).populate('utilisateur').exec();
+
 
   res.render('produit', { produit: produit, user: req.session.user, panier: req.session.cart, commentaire: userComment })
 })
@@ -408,18 +411,10 @@ router.post('/add-comment', async (req, res) => {
   const id = req.body.produit;
   const comment = req.body.commentaire
   const titre = req.body.titre
-  const regex = /[<\/>]/g;
-  let erreurCommentaire = [];
 
   // Redirection vers la page de connexion si l'utilisateur n'est pas connecté et qu'il veut ajouter un commentaire
-  if (req.session.user === []) {
+  if (req.session.user.length === 0) {
     res.redirect('/login')
-  }
-
-  if(comment.search(regex)!== -1 || titre.search(regex) !== -1){
-    erreurCommentaire.push("Les caractères spéciaux sont autorisés")
-  }else if(comment.trim().length === 0 || titre.trim().length === 0){
-    erreurCommentaire.push("Veuillez remplir tous les champs")
   }else {
     const newComment = new Commentaires({
       contenu: comment,
@@ -430,7 +425,7 @@ router.post('/add-comment', async (req, res) => {
     await newComment.save();
     res.redirect('/produit?id=' + id);
   }
-})
+  })
 
 /* ------------------------------------------------ PAGE COMPTE DE L'UTILISATEUR -----------------------------------*/
 
@@ -513,7 +508,7 @@ router.get('/add-fake-comments', async (req, res) => {
   const product = await Produits.find();
   const user = await Utilisateur.find();
 
-  for(i = 0; i < 20 ; i++) {
+  for(i = 0; i < 40 ; i++) {
     // Prend un utilisateur random dans la base de données
     let randomUser = user[Math.floor(Math.random() * user.length)];
     // Prend un produit random dans la base de données
@@ -524,7 +519,7 @@ router.get('/add-fake-comments', async (req, res) => {
       titre : faker.lorem.slug(),
       utilisateur: randomUser._id,
       produit : randomProduct._id,
-      date : faker.date.past()
+      date_commentaire : faker.date.past()
     })
     await newComment.save();
   }

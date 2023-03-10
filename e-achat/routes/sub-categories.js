@@ -13,6 +13,11 @@ router.get('/:name', async (req, res) => {
     let name = req.params.name;
 
     let subcategorie = await SousCategorie.findOne({ nom_url: name });
+    
+    if(!subcategorie) {
+      return res.render('404');
+    }
+    
     let products = await Produits.find({ sousCategorie: subcategorie.id }).populate('sousCategorie').exec();
     return res.render('sub-category', { produits: products, user: req.session.user, name, panier: req.session.cart });
 })

@@ -11,3 +11,5 @@ const commandeSchema = mongoose.Schema({
 const Commande = mongoose.model('commandes', commandeSchema);
 
 module.exports = Commande;
+
+
