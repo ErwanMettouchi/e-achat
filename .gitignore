@@ -1,0 +1,5 @@
+#Ignore les node_modules
+node_modules
+
+#Ignore le fichier de connexion
+bddconnect.js
