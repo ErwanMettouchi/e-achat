@@ -29,13 +29,7 @@ ul {
   list-style-type: none;
 }
 
-.container {
-  min-height: 100vh;
-  min-width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
+
 
 .content {
   flex: 1;
