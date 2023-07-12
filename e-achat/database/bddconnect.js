@@ -8,7 +8,7 @@ var options = {
 }
 
 mongoose.connect(
-    'mongodb+srv://Winnb:Enzoemma2007@cluster0.yeijfpb.mongodb.net/ecommerce',
+    'mongodb+srv://Winnb:1XetWtTY96Ywfapd@cluster0.yeijfpb.mongodb.net/ecommerce',
     options
 ).then(() => {
     console.log('Connexion réussie!');
